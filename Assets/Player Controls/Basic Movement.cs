@@ -9,6 +9,13 @@ public class BasicMovement : MonoBehaviour
     // SerializedField means these values can be changed from Unity interface under this script
     [SerializeField] float moveForce;
     [SerializeField] private float jumpForce;
+    [SerializeField] private float totalDashes = 1f;
+
+    // time is in seconds
+    [SerializeField] private float dashCooldownTime = 1f;
+    [SerializeField] private float dashLength = .2f;
+
+    [SerializeField] private float dashForce = 100f;
 
     private bool isJumping = false;
 
@@ -40,6 +47,11 @@ public class BasicMovement : MonoBehaviour
 
         }
 
+        if ((Input.GetAxisRaw("Horizontal") > 0 || Input.GetAxisRaw("Horizontal") < 0) && Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            StartCoroutine(dash());
+        }
+
 
     }
 
@@ -60,6 +72,18 @@ public class BasicMovement : MonoBehaviour
         if (collision.gameObject.tag == "Platform")
         {
             isJumping = true;
+        }
+    }
+
+    IEnumerator dash()
+    {
+        if (totalDashes > 0)
+        {
+            rb.AddForce(new Vector2(Input.GetAxisRaw("Horizontal") * moveForce * dashForce, 0f), ForceMode2D.Impulse);
+            totalDashes--;
+            yield return new WaitForSeconds(dashLength);
+            yield return new WaitForSeconds(dashCooldownTime);
+            totalDashes++;
         }
     }
 }
