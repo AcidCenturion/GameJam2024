@@ -5,6 +5,7 @@ using UnityEngine;
 public class BasicMovement : MonoBehaviour
 {
     Rigidbody2D rb;
+    SpriteRenderer spr;
 
     // SerializedField means these values can be changed from Unity interface under this script
     [SerializeField] float moveForce;
@@ -26,6 +27,7 @@ public class BasicMovement : MonoBehaviour
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody2D>();
+        spr = gameObject.GetComponent<SpriteRenderer>();
         spawnPoint = transform.position;
     
     }
@@ -49,12 +51,21 @@ public class BasicMovement : MonoBehaviour
 
         }
 
+        // LShift for dash. Requires movement
         if ((horizontalMovement > 0 || horizontalMovement < 0 || verticalMovement > 0) && Input.GetKeyDown(KeyCode.LeftShift))
         {
             StartCoroutine(dash());
         }
 
-
+        //Flip sprite base on direction of movement
+        if(horizontalMovement < 0)
+        {
+            spr.flipX = true;
+        }
+        if(horizontalMovement > 0)
+        {
+            spr.flipX = false;
+        }
     }
 
 
@@ -93,7 +104,7 @@ public class BasicMovement : MonoBehaviour
         }
     }
 
-    // Dash function that takes into account coolown, total dashes, direction, and gravity
+    // Dash function that takes into account cooldown, total dashes, direction, and gravity
     IEnumerator dash()
     {
         if (totalDashes > 0)
