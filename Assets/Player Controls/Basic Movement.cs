@@ -5,17 +5,20 @@ using UnityEngine;
 public class BasicMovement : MonoBehaviour
 {
     Rigidbody2D rb;
+    SpriteRenderer spr;
 
     // SerializedField means these values can be changed from Unity interface under this script
     [SerializeField] float moveForce;
     [SerializeField] private float jumpForce;
     [SerializeField] private float totalDashes = 1f;
+    [SerializeField] Vector2 wallJumpPower;
 
     // time is in seconds
     [SerializeField] private float dashCooldownTime = 1f;
     [SerializeField] private float dashLength = .2f;
 
     [SerializeField] private float dashForce;
+    [SerializeField] private Transform rayCast;
 
     private bool isJumping = false;
     private Vector3 spawnPoint;
@@ -26,6 +29,7 @@ public class BasicMovement : MonoBehaviour
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody2D>();
+        spr = gameObject.GetComponent<SpriteRenderer>();
         spawnPoint = transform.position;
     
     }
@@ -49,12 +53,28 @@ public class BasicMovement : MonoBehaviour
 
         }
 
+        // LShift for dash. Requires movement
         if ((horizontalMovement > 0 || horizontalMovement < 0 || verticalMovement > 0) && Input.GetKeyDown(KeyCode.LeftShift))
         {
             StartCoroutine(dash());
         }
 
+        //Flip sprite base on direction of movement
+        if(horizontalMovement < 0)
+        {
+            spr.flipX = true;
+        }
+        if(horizontalMovement > 0)
+        {
+            spr.flipX = false;
+        }
 
+        // if player makes contact with wall and presses jump, jump off wall
+        // jump power horizontally and vertically can be adjusted in unity interface
+        if (WallCheck() && Input.GetAxisRaw("Vertical") > 0)
+        {
+            rb.AddForce(new Vector2(-(horizontalMovement) * wallJumpPower.x, verticalMovement * wallJumpPower.y), ForceMode2D.Impulse);
+        }
     }
 
 
@@ -93,7 +113,7 @@ public class BasicMovement : MonoBehaviour
         }
     }
 
-    // Dash function that takes into account coolown, total dashes, direction, and gravity
+    // Dash function that takes into account cooldown, total dashes, direction, and gravity
     IEnumerator dash()
     {
         if (totalDashes > 0)
@@ -106,6 +126,26 @@ public class BasicMovement : MonoBehaviour
             rb.gravityScale = originalGravity; // return gravity
             yield return new WaitForSeconds(dashCooldownTime);
             totalDashes++;
+        }
+    }
+
+    bool WallCheck()
+    {
+        // Change direction of raycast to same direction player is facing
+        Vector2 raycastDirection = spr.flipX ? Vector2.left : Vector2.right;
+
+        // to show racast while testing, pause game 
+        /*Debug.DrawRay(rayCast.position, raycastDirection * 3f, Color.red);*/ // uncomment to show raycast
+
+        // checks if raycast collides with platform with layer "Wall"
+        if (Physics2D.Raycast(rayCast.position, raycastDirection, 3f, LayerMask.GetMask("Wall")))
+        {
+            Debug.Log("Touched Wall");
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 }
