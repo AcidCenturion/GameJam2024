@@ -15,31 +15,31 @@ public class BasicMovement : MonoBehaviour
     [SerializeField] private float dashCooldownTime = 1f;
     [SerializeField] private float dashLength = .2f;
 
-    [SerializeField] private float dashForce = 100f;
+    [SerializeField] private float dashForce;
 
     private bool isJumping = false;
     private Vector3 spawnPoint;
+    private float horizontalMovement;
+    private float verticalMovement;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody2D>();
         spawnPoint = transform.position;
+    
     }
 
     // Update is called once per frame
     void Update()
     {
-        /*rb.AddForce(Input.GetAxis("Horizontal") * moveForce * transform.right, ForceMode2D.Force);
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
-        }*/
+        horizontalMovement = Input.GetAxisRaw("Horizontal");
+        verticalMovement = Input.GetAxisRaw("Vertical");
 
         // a & d or left arrow key & right arrow key for left and right
-        if (Input.GetAxisRaw("Horizontal") > 0 || Input.GetAxisRaw("Horizontal") < 0)
+        if (horizontalMovement > 0 || horizontalMovement < 0)
         {
-            rb.AddForce(new Vector2(Input.GetAxisRaw("Horizontal") * moveForce, 0f), ForceMode2D.Impulse);
+            rb.AddForce(new Vector2(horizontalMovement * moveForce, 0f), ForceMode2D.Impulse);
         }
 
         // W & Space bar are jump buttons
@@ -49,7 +49,7 @@ public class BasicMovement : MonoBehaviour
 
         }
 
-        if ((Input.GetAxisRaw("Horizontal") > 0 || Input.GetAxisRaw("Horizontal") < 0) && Input.GetKeyDown(KeyCode.LeftShift))
+        if ((horizontalMovement > 0 || horizontalMovement < 0 || verticalMovement > 0) && Input.GetKeyDown(KeyCode.LeftShift))
         {
             StartCoroutine(dash());
         }
@@ -80,6 +80,7 @@ public class BasicMovement : MonoBehaviour
         {
             spawnPoint = transform.position;
         }
+
     }
 
     private void OnTriggerExit2D(Collider2D collision)
@@ -92,13 +93,17 @@ public class BasicMovement : MonoBehaviour
         }
     }
 
+    // Dash function that takes into account coolown, total dashes, direction, and gravity
     IEnumerator dash()
     {
         if (totalDashes > 0)
         {
-            rb.AddForce(new Vector2(Input.GetAxisRaw("Horizontal") * moveForce * dashForce, 0f), ForceMode2D.Impulse);
+            rb.AddForce(new Vector2(horizontalMovement * dashForce, verticalMovement * dashForce), ForceMode2D.Impulse);
             totalDashes--;
+            float originalGravity = rb.gravityScale;
+            rb.gravityScale = 0f; // prevent height loss when dashing
             yield return new WaitForSeconds(dashLength);
+            rb.gravityScale = originalGravity; // return gravity
             yield return new WaitForSeconds(dashCooldownTime);
             totalDashes++;
         }
