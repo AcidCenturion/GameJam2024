@@ -11,11 +11,13 @@ public class BasicMovement : MonoBehaviour
     [SerializeField] private float jumpForce;
 
     private bool isJumping = false;
+    private Vector3 spawnPoint;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody2D>();
+        spawnPoint = transform.position;
     }
 
     // Update is called once per frame
@@ -43,20 +45,35 @@ public class BasicMovement : MonoBehaviour
 
     }
 
-    // detects when collider makes contact with object with tag "Platform"
-    // set isJumping to true since this means they are on the ground and can jump
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // detects when collider makes contact with object with tag "Platform"
+        // set isJumping to false since this means they are on the ground and can jump
         if (collision.gameObject.tag == "Platform")
         {
             isJumping = false;
         }
+
+        // detects when players enters a death barrier
+        // set player position to most recent respawn point
+        if(collision.gameObject.tag == "DeathBarrier")
+        {
+            transform.position = spawnPoint;
+        }
+
+        // detects if player makes it through checkpoint
+        // set the players new respawn point to the checkpoint
+        if(collision.gameObject.tag == "Respawn")
+        {
+            spawnPoint = transform.position;
+        }
     }
 
-    // detects when colliderno longer makes contact with object with tag "Platform"
-    // set isJumping to false since it means they jumped and can't double jump
     private void OnTriggerExit2D(Collider2D collision)
     {
+        // detects when collider no longer makes contact with object with tag "Platform"
+        // set isJumping to true since it means they jumped and can't double jump
         if (collision.gameObject.tag == "Platform")
         {
             isJumping = true;
