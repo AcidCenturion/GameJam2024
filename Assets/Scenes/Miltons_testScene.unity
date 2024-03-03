@@ -448,6 +448,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveForce: 1
   jumpForce: 50
+  totalDashes: 1
+  dashCooldownTime: 1
+  dashLength: 0.2
+  dashForce: 100
 --- !u!58 &1028015487
 CircleCollider2D:
   m_ObjectHideFlags: 0
