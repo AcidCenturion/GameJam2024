@@ -20,10 +20,16 @@ public class BasicMovement : MonoBehaviour
     [SerializeField] private float dashForce;
     [SerializeField] private Transform rayCast;
 
+    // audio components
+    [SerializeField] private AudioSource jumpSFX;
+    [SerializeField] private AudioSource walkSFX;
+    [SerializeField] private AudioSource dashSFX;
+
     private bool isJumping = false;
     private Vector3 spawnPoint;
     private float horizontalMovement;
     private float verticalMovement;
+    private bool isMoving;
 
     // Start is called before the first frame update
     void Start()
@@ -44,12 +50,33 @@ public class BasicMovement : MonoBehaviour
         if (horizontalMovement > 0 || horizontalMovement < 0)
         {
             rb.AddForce(new Vector2(horizontalMovement * moveForce, 0f), ForceMode2D.Impulse);
+            isMoving = true;
+        }
+        else
+        {
+            isMoving = false;
+        }
+
+        // play walking sfx if player is moving
+        // stop playing if they stop moving
+        if (isMoving && !isJumping)
+        {
+            if (!walkSFX.isPlaying)
+            {
+                walkSFX.Play();
+            }
+        }
+        else
+        {
+            walkSFX.Stop();
         }
 
         // W & Space bar are jump buttons
+        // play sound when jumping
         if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W)) && !isJumping)
         {
             rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
+            jumpSFX.Play();
 
         }
 
@@ -114,6 +141,7 @@ public class BasicMovement : MonoBehaviour
     }
 
     // Dash function that takes into account cooldown, total dashes, direction, and gravity
+    // play sound when dashing
     IEnumerator dash()
     {
         if (totalDashes > 0)
@@ -121,8 +149,10 @@ public class BasicMovement : MonoBehaviour
             rb.AddForce(new Vector2(horizontalMovement * dashForce, verticalMovement * dashForce), ForceMode2D.Impulse);
             totalDashes--;
             float originalGravity = rb.gravityScale;
+            dashSFX.Play();
             rb.gravityScale = 0f; // prevent height loss when dashing
             yield return new WaitForSeconds(dashLength);
+            dashSFX.Stop();
             rb.gravityScale = originalGravity; // return gravity
             yield return new WaitForSeconds(dashCooldownTime);
             totalDashes++;
