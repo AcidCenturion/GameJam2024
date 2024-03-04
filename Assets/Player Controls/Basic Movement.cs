@@ -98,10 +98,10 @@ public class BasicMovement : MonoBehaviour
 
         // if player makes contact with wall and presses jump, jump off wall
         // jump power horizontally and vertically can be adjusted in unity interface
-        if (WallCheck() && Input.GetAxisRaw("Vertical") > 0)
+        /*if (WallCheck() && Input.GetAxisRaw("Vertical") > 0)
         {
             rb.AddForce(new Vector2(-(horizontalMovement) * wallJumpPower.x, verticalMovement * wallJumpPower.y), ForceMode2D.Impulse);
-        }
+        }*/
     }
 
 
@@ -158,14 +158,15 @@ public class BasicMovement : MonoBehaviour
             totalDashes++;
         }
     }
-
+    
+    /*
     bool WallCheck()
     {
         // Change direction of raycast to same direction player is facing
         Vector2 raycastDirection = spr.flipX ? Vector2.left : Vector2.right;
 
         // to show racast while testing, pause game 
-        /*Debug.DrawRay(rayCast.position, raycastDirection * 3f, Color.red);*/ // uncomment to show raycast
+        // Debug.DrawRay(rayCast.position, raycastDirection * 3f, Color.red); // uncomment to show raycast
 
         // checks if raycast collides with platform with layer "Wall"
         if (Physics2D.Raycast(rayCast.position, raycastDirection, 3f, LayerMask.GetMask("Wall")))
@@ -178,4 +179,6 @@ public class BasicMovement : MonoBehaviour
             return false;
         }
     }
+    */
+  
 }
