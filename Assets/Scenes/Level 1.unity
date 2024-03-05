@@ -208,7 +208,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f335be2a19dae3247bb05c1ed0b66e0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveForce: 0.3
+  moveForce: 1
   jumpForce: 100
   totalDashes: 1
   wallJumpPower: {x: 20, y: 10}
